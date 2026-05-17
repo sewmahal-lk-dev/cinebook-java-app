@@ -42,5 +42,22 @@ public class MovieDAO {
             System.out.println("❌ Error: Movies ටික ගන්න බැරි වුණා: " + e.getMessage());
         }
         return movies;
+
+
+    }
+    // Movie එකක් ID එක පාවිච්චි කරලා Delete කිරීම (Delete)
+    public void deleteMovie(int id) {
+        String sql = "DELETE FROM movies WHERE id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+            System.out.println("🗑 ID " + id + " තියෙන Movie එක Database එකෙන් අයින් කළා!");
+
+        } catch (SQLException e) {
+            System.out.println("❌ Error: Delete කරන්න බැරි වුණා: " + e.getMessage());
+        }
     }
 }

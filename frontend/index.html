@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CineBook - Movie Management</title>
+    <title>CineBook - Premium Movie Portal</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,9 @@
         }
 
         body {
-            background-color: #141414;
+            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.85)),
+                        url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=1920') no-repeat center center fixed;
+            background-size: cover;
             color: #ffffff;
             padding: 40px;
         }
@@ -29,18 +31,32 @@
         }
 
         header h1 {
-            color: #E50914; /* Netflix Red Color */
-            font-size: 2.5rem;
+            color: #E50914;
+            font-size: 2.8rem;
             margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
         }
 
-        /* Form Style */
-        .movie-form {
-            background-color: #1f1f1f;
+        header p {
+            color: #ccc;
+            font-size: 1.1rem;
+        }
+
+        .movie-form, .movie-card {
+            background-color: rgba(31, 31, 31, 0.85);
+            backdrop-filter: blur(10px);
             padding: 30px;
             border-radius: 8px;
             margin-bottom: 40px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .movie-form h2 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #E50914;
+            padding-bottom: 10px;
         }
 
         .form-group {
@@ -56,8 +72,8 @@
         .form-group input, .form-group select {
             width: 100%;
             padding: 12px;
-            border: 1px solid #333;
-            background-color: #333;
+            border: 1px solid #444;
+            background-color: #222;
             color: white;
             border-radius: 4px;
             font-size: 1rem;
@@ -73,34 +89,66 @@
             font-size: 1rem;
             font-weight: bold;
             width: 100%;
+            transition: 0.3s;
         }
 
         .btn:hover {
             background-color: #b81d24;
         }
 
-        /* Movie List Grid */
+        /* Search Section */
+        .search-container {
+            margin-bottom: 30px;
+        }
+        .search-container input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 25px;
+            border: 1px solid #E50914;
+            background-color: rgba(0,0,0,0.6);
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        /* Movie Grid & Cards */
         .movie-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 20px;
         }
 
         .movie-card {
-            background-color: #1f1f1f;
             padding: 20px;
-            border-radius: 8px;
             border-left: 5px solid #E50914;
+            position: relative;
+            margin-bottom: 0;
         }
 
         .movie-card h3 {
             margin-bottom: 10px;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
         }
 
         .movie-card p {
             color: #aaa;
-            font-size: 0.9rem;
+        }
+
+        /* Delete Button Style */
+        .delete-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #ff4444;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .delete-btn:hover {
+            color: #ff0000;
+            transform: scale(1.2);
         }
     </style>
 </head>
@@ -108,108 +156,134 @@
 
 <div class="container">
     <header>
-        <h1>🎬 CineBook Portal</h1>
-        <p>ඔබගේ ප්‍රියතම චිත්‍රපට එකතු කරලා තියාගන්න </p>
+        <h1>🎬 CineBook Premium</h1>
+        <p>Your Ultimate Personal Movie Management Portal</p>
     </header>
 
     <div class="movie-form">
-        <h2> අලුත් Movie එකක් එකතු කරන්න</h2>
-        <br>
+        <h2>Add New Movie</h2>
         <div class="form-group">
             <label for="title">Movie Title</label>
             <input type="text" id="title" placeholder="e.g., Inception">
         </div>
         <div class="form-group">
-            <label for="genre">Genre (වර්ගය)</label>
-            <input type="text" id="genre" placeholder="e.g., Sci-Fi / Action">
+            <label for="genre">Genre</label>
+            <select id="genre">
+                <option value="Action">Action</option>
+                <option value="Sci-Fi">Sci-Fi</option>
+                <option value="Horror">Horror</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Drama">Drama</option>
+                <option value="Romance">Romance</option>
+            </select>
         </div>
         <button class="btn" onclick="addMovie()">Add Movie</button>
     </div>
 
-    <h2>🎬 දැනට තියෙන Movies</h2>
-    <br>
-    <div class="movie-grid" id="movieGrid">
-        <div class="movie-card">
-            <h3>Spiderman</h3>
-            <p>🍿 Genre: Action</p>
-        </div>
-        <div class="movie-card">
-            <h3>Avatar</h3>
-            <p>🍿 Genre: Sci-Fi</p>
-        </div>
+    <div class="search-container">
+        <input type="text" id="searchBar" onkeyup="filterMovies()" placeholder="🔍 Type movie title to search...">
     </div>
+
+    <h2>🎬 Available Movies</h2>
+    <br>
+    <div class="movie-grid" id="movieGrid"></div>
 </div>
 
 <script>
-
     const API_URL = "http://localhost:8080/api/movies";
+    let allMoviesList = [];
 
- // පිටුව Load වෙද්දීම Database එකේ තියෙන Movies ටික අරන් පෙන්වන්න
- document.addEventListener("DOMContentLoaded", loadMovies);
+    document.addEventListener("DOMContentLoaded", loadMovies);
 
- // 1. Database එකෙන් Movies ටික Frontend එකට ගන්නා ආකාරය
- async function loadMovies() {
-     try {
-         const response = await fetch(API_URL);
-         const movies = await response.json();
+    // 1. Load Movies
+    async function loadMovies() {
+        try {
+            const response = await fetch(API_URL);
+            allMoviesList = await response.json();
+            displayMovies(allMoviesList);
+        } catch (error) {
+            console.error("Error loading movies:", error);
+        }
+    }
 
-         const movieGrid = document.getElementById("movieGrid");
-         movieGrid.innerHTML = ""; // පරණ Mock Cards අයින් කරනවා
+    function displayMovies(movies) {
+        const movieGrid = document.getElementById("movieGrid");
+        movieGrid.innerHTML = "";
 
-         if(movies.length === 0) {
-             movieGrid.innerHTML = "<p>තවම කිසිම චිත්‍රපටයක් නැත. අලුත් එකක් එකතු කරන්න!</p>";
-             return;
-         }
+        if(movies.length === 0) {
+            movieGrid.innerHTML = "<p>No movies found!</p>";
+            return;
+        }
 
-         movies.forEach(movie => {
-             const card = document.createElement("div");
-             card.className = "movie-card";
-             card.innerHTML = `
-                 <h3>🎬 ${movie.title}</h3>
-                 <p>🍿 Genre: ${movie.genre}</p>
-                 <p style="font-size: 11px; color: #666; margin-top: 10px;">ID: ${movie.id}</p>
-             `;
-             movieGrid.appendChild(card);
-         });
-     } catch (error) {
-         console.error("Error loading movies:", error);
-     }
- }
+        movies.forEach(movie => {
+            const card = document.createElement("div");
+            card.className = "movie-card";
+            card.innerHTML = `
+                <h3>${movie.title}</h3>
+                <p>🍿 Genre: ${movie.genre}</p>
+                <p style="font-size: 11px; color: #555; margin-top: 10px;">ID: ${movie.id}</p>
+                <button class="delete-btn" onclick="deleteMovie(${movie.id})">🗑</button>
+            `;
+            movieGrid.appendChild(card);
+        });
+    }
 
- // 2. Form එකෙන් අලුත් Movie එකක් Java Backend එකට යවන ආකාරය
- async function addMovie() {
-     const titleInput = document.getElementById("title");
-     const genreInput = document.getElementById("genre");
+    // 2. Add Movie
+    async function addMovie() {
+        const titleInput = document.getElementById("title");
+        const genreSelect = document.getElementById("genre");
 
-     const title = titleInput.value.trim();
-     const genre = genreInput.value.trim();
+        const title = titleInput.value.trim();
+        const genre = genreSelect.value;
 
-     if (title === "" || genre === "") {
-         alert("කරුණාකර විස්තර පුරවන්න!");
-         return;
-     }
+        if (title === "") {
+            alert("Please enter a movie title!");
+            return;
+        }
 
-     const newMovie = { title: title, genre: genre };
+        const newMovie = { title: title, genre: genre };
 
-     try {
-         const response = await fetch(API_URL, {
-             method: "POST",
-             headers: { "Content-Type": "application/json" },
-             body: JSON.stringify(newMovie)
-         });
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newMovie)
+            });
 
-         if (response.ok) {
-             alert("✔ Movie එක සාර්ථකව ඇතුළත් කළා!");
-             titleInput.value = "";
-             genreInput.value = "";
-             loadMovies(); // ලිස්ට් එක Refresh කරනවා
-         } else {
-             alert("❌ ඇතුළත් කිරීමට නොහැකි විය!");
-         }
-     } catch (error) {
-         console.error("Error adding movie:", error);
-     }
- }
+            if (response.ok) {
+                titleInput.value = "";
+                loadMovies();
+            }
+        } catch (error) {
+            console.error("Error adding movie:", error);
+        }
+    }
+
+    // 3. Delete Movie
+    async function deleteMovie(id) {
+        if(confirm("Are you sure you want to delete this movie?")) {
+            try {
+                const response = await fetch(`${API_URL}?id=${id}`, {
+                    method: "DELETE"
+                });
+
+                if (response.ok) {
+                    loadMovies();
+                }
+            } catch (error) {
+                console.error("Error deleting movie:", error);
+            }
+        }
+    }
+
+    // 4. Live Search Feature
+    function filterMovies() {
+        const searchText = document.getElementById("searchBar").value.toLowerCase();
+        const filtered = allMoviesList.filter(movie =>
+            movie.title.toLowerCase().includes(searchText)
+        );
+        displayMovies(filtered);
+    }
 </script>
 
 </body>
