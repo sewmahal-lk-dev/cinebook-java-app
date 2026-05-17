@@ -142,17 +142,74 @@
 
 <script>
 
-    function addMovie() {
-        let title = document.getElementById('title').value;
-        let genre = document.getElementById('genre').value;
+    const API_URL = "http://localhost:8080/api/movies";
 
-        if(title === "" || genre === "") {
-            alert("කරුණාකර විස්තර පුරවන්න!");
-            return;
-        }
+ // පිටුව Load වෙද්දීම Database එකේ තියෙන Movies ටික අරන් පෙන්වන්න
+ document.addEventListener("DOMContentLoaded", loadMovies);
 
-        alert("නියමයි! " + title + " ඇතුළත් කළා (දැනට Mock Alert එකක් විතරයි).");
-    }
+ // 1. Database එකෙන් Movies ටික Frontend එකට ගන්නා ආකාරය
+ async function loadMovies() {
+     try {
+         const response = await fetch(API_URL);
+         const movies = await response.json();
+
+         const movieGrid = document.getElementById("movieGrid");
+         movieGrid.innerHTML = ""; // පරණ Mock Cards අයින් කරනවා
+
+         if(movies.length === 0) {
+             movieGrid.innerHTML = "<p>තවම කිසිම චිත්‍රපටයක් නැත. අලුත් එකක් එකතු කරන්න!</p>";
+             return;
+         }
+
+         movies.forEach(movie => {
+             const card = document.createElement("div");
+             card.className = "movie-card";
+             card.innerHTML = `
+                 <h3>🎬 ${movie.title}</h3>
+                 <p>🍿 Genre: ${movie.genre}</p>
+                 <p style="font-size: 11px; color: #666; margin-top: 10px;">ID: ${movie.id}</p>
+             `;
+             movieGrid.appendChild(card);
+         });
+     } catch (error) {
+         console.error("Error loading movies:", error);
+     }
+ }
+
+ // 2. Form එකෙන් අලුත් Movie එකක් Java Backend එකට යවන ආකාරය
+ async function addMovie() {
+     const titleInput = document.getElementById("title");
+     const genreInput = document.getElementById("genre");
+
+     const title = titleInput.value.trim();
+     const genre = genreInput.value.trim();
+
+     if (title === "" || genre === "") {
+         alert("කරුණාකර විස්තර පුරවන්න!");
+         return;
+     }
+
+     const newMovie = { title: title, genre: genre };
+
+     try {
+         const response = await fetch(API_URL, {
+             method: "POST",
+             headers: { "Content-Type": "application/json" },
+             body: JSON.stringify(newMovie)
+         });
+
+         if (response.ok) {
+             alert("✔ Movie එක සාර්ථකව ඇතුළත් කළා!");
+             titleInput.value = "";
+             genreInput.value = "";
+             loadMovies(); // ලිස්ට් එක Refresh කරනවා
+         } else {
+             alert("❌ ඇතුළත් කිරීමට නොහැකි විය!");
+         }
+     } catch (error) {
+         console.error("Error adding movie:", error);
+     }
+ }
 </script>
 
 </body>

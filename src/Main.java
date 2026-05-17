@@ -1,60 +1,81 @@
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
-        MovieDAO movieDAO = new MovieDAO();
-        Scanner scanner = new Scanner(System.in);
-        boolean running = true;
+    public static void main(String[] args) throws IOException {
 
-        System.out.println("====================================");
-        System.out.println("   🎬 CINEBOOK MANAGEMENT SYSTEM 🎬   ");
-        System.out.println("====================================");
+        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
-        while (running) {
-            System.out.println("\n👉 කරන්න ඕන දේ තෝරන්න:");
-            System.out.println("1. අලුත් Movie එකක් ඇතුළත් කරන්න (Add Movie)");
-            System.out.println("2. ඔක්කොම Movies ටික බලන්න (View Movies)");
-            System.out.println("3. System එකෙන් ඉවත් වෙන්න (Exit)");
-            System.out.print("ඔයාගේ අංකය (1-3): ");
 
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Buffer එක clear කරන්න
+        server.createContext("/api/movies", new MovieHandler());
 
-            switch (choice) {
-                case 1:
-                    System.out.print("\nEnter Movie Title: ");
-                    String title = scanner.nextLine();
-                    System.out.print("Enter Movie Genre: ");
-                    String genre = scanner.nextLine();
+        server.setExecutor(null);
+        System.out.println("🚀 CineBook Backend Server එක Port 8080 එකේ සුපිරියටම Start වුණා!");
+        server.start();
+    }
+
+    static class MovieHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+
+            exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+
+            MovieDAO movieDAO = new MovieDAO();
+
+
+            if ("GET".equals(exchange.getRequestMethod())) {
+                List<Movie> movieList = movieDAO.getAllMovies();
+
+
+                StringBuilder json = new StringBuilder("[");
+                for (int i = 0; i < movieList.size(); i++) {
+                    Movie m = movieList.get(i);
+                    json.append(String.format("{\"id\":%d, \"title\":\"%s\", \"genre\":\"%s\"}",
+                            m.getId(), m.getTitle(), m.getGenre()));
+                    if (i < movieList.size() - 1) json.append(",");
+                }
+                json.append("]");
+
+                byte[] response = json.toString().getBytes();
+                exchange.getResponseHeaders().set("Content-Type", "application/json");
+                exchange.sendResponseHeaders(200, response.length);
+                OutputStream os = exchange.getResponseBody();
+                os.write(response);
+                os.close();
+            }
+
+            else if ("POST".equals(exchange.getRequestMethod())) {
+
+                java.io.InputStream is = exchange.getRequestBody();
+                java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+                String body = s.hasNext() ? s.next() : "";
+
+
+                try {
+                    String title = body.split("\"title\":\"")[1].split("\"")[0];
+                    String genre = body.split("\"genre\":\"")[1].split("\"")[0];
 
                     Movie newMovie = new Movie(0, title, genre);
                     movieDAO.addMovie(newMovie);
-                    break;
 
-                case 2:
-                    System.out.println("\n--- 🎬 දැනට තියෙන චිත්‍රපට ලැයිස්තුව ---");
-                    List<Movie> movieList = movieDAO.getAllMovies();
-
-                    if (movieList.isEmpty()) {
-                        System.out.println("තවම කිසිම Movie එකක් ඇතුළත් කර නැත!");
-                    } else {
-                        for (Movie m : movieList) {
-                            System.out.println("🆔 ID: " + m.getId() + " | 🎥 Title: " + m.getTitle() + " | 🏷️ Genre: " + m.getGenre());
-                        }
-                    }
-                    System.out.println("---------------------------------------");
-                    break;
-
-                case 3:
-                    running = false;
-                    System.out.println("\n👋 CineBook පාවිච්චි කළාට ස්තූතියි! සුබ දවසක්!");
-                    break;
-
-                default:
-                    System.out.println("❌ වැරදි අංකයක්! කරුණාකර 1, 2 හෝ 3 තෝරන්න.");
+                    String response = "{\"message\":\"Success\"}";
+                    exchange.sendResponseHeaders(200, response.length());
+                    OutputStream os = exchange.getResponseBody();
+                    os.write(response.getBytes());
+                    os.close();
+                } catch (Exception e) {
+                    exchange.sendResponseHeaders(400, 0); // Bad Request
+                }
+            } else if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                exchange.sendResponseHeaders(204, -1);
             }
         }
-        scanner.close();
     }
 }
