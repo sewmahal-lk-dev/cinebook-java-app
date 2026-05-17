@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineBook - Movie Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #141414;
+            color: #ffffff;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            color: #E50914; /* Netflix Red Color */
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        /* Form Style */
+        .movie-form {
+            background-color: #1f1f1f;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #aaa;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #333;
+            background-color: #333;
+            color: white;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .btn {
+            background-color: #E50914;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background-color: #b81d24;
+        }
+
+        /* Movie List Grid */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .movie-card {
+            background-color: #1f1f1f;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #E50914;
+        }
+
+        .movie-card h3 {
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .movie-card p {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🎬 CineBook Portal</h1>
+        <p>ඔබගේ ප්‍රියතම චිත්‍රපට එකතු කරලා තියාගන්න </p>
+    </header>
+
+    <div class="movie-form">
+        <h2> අලුත් Movie එකක් එකතු කරන්න</h2>
+        <br>
+        <div class="form-group">
+            <label for="title">Movie Title</label>
+            <input type="text" id="title" placeholder="e.g., Inception">
+        </div>
+        <div class="form-group">
+            <label for="genre">Genre (වර්ගය)</label>
+            <input type="text" id="genre" placeholder="e.g., Sci-Fi / Action">
+        </div>
+        <button class="btn" onclick="addMovie()">Add Movie</button>
+    </div>
+
+    <h2>🎬 දැනට තියෙන Movies</h2>
+    <br>
+    <div class="movie-grid" id="movieGrid">
+        <div class="movie-card">
+            <h3>Spiderman</h3>
+            <p>🍿 Genre: Action</p>
+        </div>
+        <div class="movie-card">
+            <h3>Avatar</h3>
+            <p>🍿 Genre: Sci-Fi</p>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function addMovie() {
+        let title = document.getElementById('title').value;
+        let genre = document.getElementById('genre').value;
+
+        if(title === "" || genre === "") {
+            alert("කරුණාකර විස්තර පුරවන්න!");
+            return;
+        }
+
+        alert("නියමයි! " + title + " ඇතුළත් කළා (දැනට Mock Alert එකක් විතරයි).");
+    }
+</script>
+
+</body>
+</html>
