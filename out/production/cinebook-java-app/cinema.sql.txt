@@ -1,0 +1,9 @@
+CREATE DATABASE cinema_db;
+
+USE cinema_db;
+
+CREATE TABLE movies (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(100),
+    genre VARCHAR(50)
+);
